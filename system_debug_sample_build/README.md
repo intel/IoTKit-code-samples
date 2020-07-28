@@ -3,17 +3,13 @@
 
 | Optimized for                     | Description
 |:---                               |:---
-| OS                                | Linux* Ubuntu* 18.04, Windows 10
+| OS                                | Linux* Ubuntu* 20.04, Windows 10
 | Hardware                          | Aaeon UpXtreme
-| Software                          | Intel&reg; oneAPI System Debugger
+| Software                          | Intel® oneAPI System Debugger
 
 ## Purpose
 
 This sample relates to the basic usage of components of the Intel System Debugger.
-
-As a first step, please checkout the following git repository:
-
-```git clone https://github.com/intel/IoTKit-code-samples```
 
 The folder `system_debug_build` contains both source and documentation for how to use these components.
 
@@ -23,7 +19,7 @@ The folder `system_debug_build` contains both source and documentation for how t
 
 `docs` : RST documentation for tutorials of components.
 
-`python` : Python code making use of the component python interfaces (if applicable).
+`python` : Python code making use of the component python interfaces (if applicable). These should be run in the Intel® System Debugger Python Environment.
 
 
 ### Docs

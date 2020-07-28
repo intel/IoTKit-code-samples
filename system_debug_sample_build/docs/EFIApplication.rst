@@ -11,7 +11,7 @@ Building the EFI Application
 +=================+=============================================================================+
 | OS              | Linux\* Ubuntu\* 18.04, Windows 10, Fedora 32, MacOS 10.15                  |
 +-----------------+-----------------------------------------------------------------------------+
-| Hardware        | Any machine which has an EFI based bios                                     |
+| Hardware        | Any machine which has an EFI based bios (UpXtreme detailed here)            |
 +-----------------+-----------------------------------------------------------------------------+
 | Software        | Intel® oneAPI C++ Compiler (beta), Visual Studio, GCC-9, GCC-10, Clang-10   |
 +-----------------+-----------------------------------------------------------------------------+
@@ -20,6 +20,47 @@ License
 -------
 
 This code sample is licensed under MIT license.
+
+Hardware
+------------
+
+For this sample, we recommend you use the `Aaeon Upxtreme <https://www.aaeon.com/en/p/up-xtreme-compact-embedded-board-whiskey-lake>`_.
+
+This is a Whiskeylake based design.
+
+
+To perform source level debugging, you will have to flash the debug bios on the device.
+
+This can be done by downloading the debug firmware package `Here <https://downloads.up-community.org/download/up-xtreme-uefi-debug-bios-v1-8d/>`_.
+
+Then, put these files to a USB stick, boot the UpXtreme to an EFI shell (more detailed instructions detailed on above link), and run the GO_entire.nsh script.
+
+Now - reboot the target and press F2 to go into the bios settings. You will see a password page.
+
+Please enter the default password **upassw0rd**
+
+First, lets change the boot order to boot from USB first. Go to the **BOOT** section in the bios, and change *Boot Option #1* to your desired USB stick.
+
+
+Then, to enable debugging, go to **CRB Setup** -> **CRB Advanced** -> **Debug Settings**
+
+Then, enable the following:
+
+**Platform Debug Consent** - change this to *Enabled (usb3 Dbc)*
+
+Then, go to Advanced Debug Settings:
+
+Make sure **CPU Run Control** is enabled. And enable processor trace memory allocation to **128MB**. Then set **Processor Trace** to enabled.
+Then, finally make sure **Processor Trace output Scheme** is set to **Single Range Output**.
+
+Now, go back (by pressing esc) to the CRB main menu. Go to **CRB Save & Exit** and click **Save Changes and Exit**.
+
+Now, you can plug the DbC cable into your Host and the UpXtreme. The DBC cable is a Usb 3 cable, with no power pins. You can buy a cable
+`from Design in Tools <https://designintools.intel.com/Design-Validation-Tools-Design-In-Tools-a/287.htm/>`_.
+
+
+
+
 
 Toolchains
 --------------
@@ -50,46 +91,17 @@ To build the efi applcation, please clone the repository.
 
 ``git clone https://github.com/intel/IoTKit-code-samples``
 
+Then cd to the location of the efi application.
+
+``cd system_debug_sample_build/efi_application/``
+
 Then - clone all of the submodules
 
 ``git submodule update --init``
 
-Now - make the cmake project, making sure to specify it is a 64 bit
-architecture.
-
-``mkdir build``
-
-``cd build``
-
-To build the efi application, we use the ``cmake`` build system to
-generate the build system.
-
-We do this with:
-
-``cmake ..``
-
-then - on windows you will see a Visual Studio solution in the ``build``
-directory, uxdbgapp.sln, on POSIX systems you will see a MakeFile in the
-build folder.
-
-You can then build this by issuing the following command:
-
-``cmake --build .``
-
-Or,
-
-on Windows, you can open the visual studio solution, and build the
-uxdbgapp target.
-
-On POSIX, you can run the makefile with ``make -j``.
-
-windows builders
-^^^^^^^^^^^^^^^^
-On windows, the output will be in the ``Debug`` folder in the build
-directory.
-
 Edk2 basetools
-""""""""""""""
+^^^^^^^^^^^^^^^^
+
 On windows, you will either need to build edk2 basetools, or get the
 prebuilt binaries.
 
@@ -130,6 +142,45 @@ would be:
 If there are any errors, the build logs can be seen in:
 
 ``<samples>\system_debugger\efi_application\edk2\BaseTools\BaseToolsBuild\``
+
+
+Building
+^^^^^^^^^^^^^^^^
+
+Now - make the cmake project, making sure to specify it is a 64 bit
+architecture.
+
+``mkdir build``
+
+``cd build``
+
+To build the efi application, we use the ``cmake`` build system to
+generate the build system.
+
+We do this with:
+
+``cmake ..``
+
+then - on windows you will see a Visual Studio solution in the ``build``
+directory, uxdbgapp.sln, on POSIX systems you will see a MakeFile in the
+build folder.
+
+You can then build this by issuing the following command:
+
+``cmake --build .``
+
+Or,
+
+on Windows, you can open the visual studio solution, and build the
+uxdbgapp target.
+
+On POSIX, you can run the makefile with ``make -j``.
+
+windows builders
+^^^^^^^^^^^^^^^^
+On windows, the output will be in the ``Debug`` folder in the build
+directory.
+
 
 output files
 ------------

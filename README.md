@@ -12,9 +12,11 @@
 | | Onboard Blink        | CPU | Built-in LED blink for common IoT boards using Eclipse* MRAA |
 | | PWM                  | CPU | Pulse Width Modulation pin output using Eclipse* MRAA |
 | | Up2 LEDs             | CPU | Built-in LED example for UP* Squared using Eclipse* MRAA |
+| **Intel® System Debugger** | | | |
+| | system_debug_sample_build | UEFI | Basic example that showcases the features of the Intel® System Debugger |
 
-## Instructions  
+## Instructions
 Instructions on how to use these code samples are provided in the individual sample folders.
 
-## License  
+## License
 The code samples are licensed under MIT license.

@@ -49,26 +49,25 @@ static void CheckRunControl() {
   UINT64 u64Debug = read_msr(DEBUG_PRIVACY_MSR);
   u8Run_Control = u64Debug & 0x1;
 
-  print_str(L"Phase-2: Platform Debug Enabling checking\n" );
+  print_str(L"Phase-2: Platform Debug Enabling checking" );
 
   if (u8Run_Control) {
-    print_str(L"Run Control is enabled\n");
+    print_str(L"Run Control is enabled");
   } else {
-    print_str(L"Run Control is disabled\n");
+    print_str(L"Run Control is disabled");
   }
 }
-
 
 static void CheckProcessorTrace() {
   UINT64 u64Debug = read_msr(IA32_RTIT_CTL);
   u8Processor_Trace = u64Debug & 0x1;
 
-  print_str(L"Phase-3: Intel(r) Process Trace Enabling checking\n" );
+  print_str(L"Phase-3: Intel(r) Process Trace Enabling checking" );
 
   if (u8Processor_Trace) {
-    print_str(L"Intel(R) Processor Trace is enabled\n");
+    print_str(L"Intel(R) Processor Trace is enabled");
   } else {
-    print_str(L"Intel(R) Processor Trace is disabled\n");
+    print_str(L"Intel(R) Processor Trace is disabled");
   }
 }
 
@@ -76,106 +75,45 @@ VOID CheckThreeStrike() {
   UINT64 u64Debug = read_msr(THREE_STRIKE_DISABLE);
   u8Three_Strike = (u64Debug & 0x0080) ? 1 : 0; // 0000 1000 0000 0000 - bit 11
 
-  print_str(L"Phase-4: Crash Log configuration checking\n" );
+  print_str(L"Phase-4: Crash Log configuration checking" );
   if (u8Three_Strike) {
-      print_str(L"Three Strike is enabled\n");
+      print_str(L"Three Strike is enabled");
   } else {
-      print_str(L"Three Strike is disabled\n");
+      print_str(L"Three Strike is disabled");
   }
 }
 
+static void checkDCIStatus(UINT32 u32Enabling_Status) {
 
-
-static void checkDCIStatus(UINT32 u32Enabling_Status, UINT32 u32Connection_Established, UINT32 u32Debug_Enable) {
-
-  print_str(L"Phase-1: Host-Target connectivity checking\n" );
+  print_str(L"Phase-1: Host-Target connectivity checking" );
 
   if (u32Enabling_Status) {
-    print_str(L"Platform Debug Consent is enabled, ");
+    print_str(L"Platform Debug Consent is enabled.");
   } else {
-    print_str(L"Platform Debug Consent is disabled, ");
-  }
-
-  if (u16SelectedIndex == 0) {
-    if (u32Debug_Enable) {
-      print_str(L"and Intel(R) DCI is enabled\n");
-    } else {
-      print_str(L"and Intel(R) DCI is disabled\n");
-    }
-  } else {
-    if (u32Debug_Enable) {
-      print_str(L"Intel(R) DCI is enabled, ");
-    } else {
-      print_str(L"Intel(R) DCI is disabled, ");
-    }
-    if (u32Connection_Established) {
-      print_str(L"and a debug connection established.\n");
-    } else {
-      print_str(L"and a debug connection not established.\n");
-    }
+    print_str(L"Platform Debug Consent is disabled.");
   }
 }
-
-static void CheckUSBConnection(){
-
-  #ifdef DUMP_USB_CONFIG
-  UINT16  u32USB_Config_register[0x10];
-  UINT32  u32USB_CFG_register;
-  #endif
-
-  #ifdef DUMP_USB_CONFIG
-
-  print_str(L"  Phase-5: USB Port configuration checking\n" );
-
-  if (gDebugConfigurationTable[u16SelectedIndex].u32USB_CFG_Address != 0) {
-    u32USB_CFG_register = MmioRead32(gDebugConfigurationTable[u16SelectedIndex].u32USB_CFG_Address);
-    /*
-      USB port configuration
-      0x0    - Host
-      0x20  - Disconnected
-      0x160  - Device
-      0x180  - DbC2
-    */
-    for (UINT16 i=0; i < gDebugConfigurationTable[u16SelectedIndex].u16Number_of_USB; i++) {
-      u32USB_Config_register[i] = MmioRead16(gDebugConfigurationTable[u16SelectedIndex].u32USB_CFG_Address + i*0x10);
-
-      switch(u32USB_Config_register[i]) {
-        case 0x0:
-          print_str(L"Host");
-          break;
-        case 0x20:
-          print_str(L"Disconnected");
-          break;
-        case 0x160:
-          print_str(L"Device");
-          break;
-        case 0x180:
-          print_str(L"DbC2");
-          break;
-      }
-      print_str(L"\n");
-
-    }
-  }
-  #endif
-
-  return;
-}
-
 
 void getDbgInfo() {
 
     UINT32 u32ECTRL_register;
+    UINT32 u32ECTRL_register_address;
 
-
-    u32ECTRL_register = MmioReadEfi(0xD0A80004);
-
-    UINT32 u32Connection_Established = (u32ECTRL_register & BIT_MASK_EGRANT) >> 9;
-    UINT32 u32Debug_Enable = (u32ECTRL_register & BIT_MASK_DBGENABLE) >> 8;
-    UINT32 u32Enabling_Status = (u32ECTRL_register & BIT_MASK_HEEN) >> 4;
-    UINT32 u32Debug_ConsentEnum = (u32ECTRL_register & BIT_MASK_ENUM_CFG) >> 10;
+    // First, gather the information about this processor.
     ProcessorVersionInfo();
-    checkDCIStatus(u32Enabling_Status, u32Connection_Established, u32Debug_Enable);
+
+    // With processor info, different models have the ECTRL register at different
+    // addresses.
+    if (gCPU_Model > 0x86) {
+        u32ECTRL_register_address =  0xFDB80004;
+    } else {
+        u32ECTRL_register_address =  0xD0A80004;
+    }
+
+    u32ECTRL_register = MmioReadEfi(u32ECTRL_register_address);
+
+    UINT32 u32Enabling_Status = (u32ECTRL_register & BIT_MASK_HDCIEN) >> 4;
+    checkDCIStatus(u32Enabling_Status);
     CheckRunControl();
     CheckProcessorTrace();
     CheckThreeStrike();
