@@ -5,6 +5,8 @@
 We are in the process of moving all Intel oneAPI code samples to a different open source repository: https://github.com/oneapi-src/oneAPI-samples.
 The current repository will be deprecated in the near future.
 
+## List of Samples
+
 | *Component* | *Code Sample* | *Target Hardware Device* | *Short Description* |
 |:---|---|:---:|---|
 | **Intel® C++ Compiler** | | | |
